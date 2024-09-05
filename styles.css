@@ -1,0 +1,152 @@
+/* Estilos generales */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
+}
+
+.container {
+  background-color: #fff;
+  padding: 20px;
+  width: 600px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Formularios */
+#formulario-publicacion input,
+#formulario-publicacion textarea,
+#login-form input,
+#registro-form input,
+#buscador input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#publicar-btn,
+#login-btn,
+#registro-btn,
+#buscador-btn,
+#volver-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#publicar-btn:hover,
+#login-btn:hover,
+#registro-btn:hover,
+#buscador-btn:hover,
+#volver-btn:hover {
+  background-color: #0056b3;
+}
+
+#publicaciones {
+  margin-top: 30px;
+}
+
+.publicacion {
+  background-color: #e9ecef;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.publicacion h3 {
+  margin-bottom: 10px;
+}
+
+.publicacion p {
+  margin-bottom: 5px;
+  color: #555;
+}
+
+span {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#login-form,
+#registro-form {
+  margin-bottom: 20px;
+}
+
+#adjuntos-preview {
+  margin: 10px 0;
+}
+
+#adjuntos-preview img {
+  max-width: 100px;
+  margin-right: 10px;
+}
+
+#adjuntos-preview video {
+  max-width: 200px;
+  margin-right: 10px;
+}
+
+#adjuntos-preview div {
+  display: inline-block;
+  margin-right: 10px;
+  background-color: #f1f1f1;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.adjuntos {
+  margin-top: 10px;
+}
+
+.adjunto {
+  margin-bottom: 5px;
+}
+
+.adjunto img,
+.adjunto video {
+  max-width: 100%;
+}
+
+.adjunto a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.adjunto a:hover {
+  text-decoration: underline;
+}
+
+/* Nuevos estilos */
+#buscador {
+  margin-bottom: 20px;
+}
+
+#perfil {
+  display: flex;
+  flex-direction: column;
+}
+
+#publicaciones-usuario {
+  margin-top: 30px;
+}
