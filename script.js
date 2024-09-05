@@ -55,7 +55,6 @@ function mostrarForo() {
     document.getElementById('login-form').style.display = 'none';
     document.getElementById('registro-form').style.display = 'none';
     document.getElementById('foro').style.display = 'block';
-    document.getElementById('perfil').style.display = 'none';
     document.getElementById('usuario-bienvenida').textContent = `Bienvenido, ${usuarioActual}`;
     cargarPublicaciones();
 }
@@ -108,7 +107,7 @@ document.getElementById('publicar-btn').addEventListener('click', function() {
 function guardarPublicacion(publicacion) {
     publicaciones.push(publicacion);
     localStorage.setItem('publicaciones', JSON.stringify(publicaciones));
-    agregarPublicacion(publicacion, publicaciones.length - 1);
+    agregarPublicacion(publicacion);
 
     // Limpiar campos
     document.getElementById('titulo').value = '';
@@ -152,32 +151,25 @@ document.getElementById('archivo').addEventListener('change', function() {
 
 // Cargar publicaciones al iniciar sesión
 function cargarPublicaciones() {
-    // Ordenar publicaciones por fecha, más reciente primero
-    publicaciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
     document.getElementById('lista-publicaciones').innerHTML = '';
-    publicaciones.forEach((publicacion, index) => {
-        agregarPublicacion(publicacion, index);
+    publicaciones.forEach(publicacion => {
+        agregarPublicacion(publicacion);
     });
 }
 
 // Función para agregar publicación al DOM
-function agregarPublicacion(publicacion, index) {
+function agregarPublicacion(publicacion, contenedor = document.getElementById('lista-publicaciones')) {
     const publicacionDiv = document.createElement('div');
     publicacionDiv.classList.add('publicacion');
 
     const tituloElemento = document.createElement('h3');
-    tituloElemento.textContent = `${publicacion.titulo} (por ${publicacion.usuario} - ${publicacion.fecha})`;
+    tituloElemento.textContent = `${publicacion.titulo} (por <a href="#" class="ver-perfil" data-usuario="${publicacion.usuario}">${publicacion.usuario}</a> - ${publicacion.fecha})`;
 
     const contenidoElemento = document.createElement('p');
     contenidoElemento.textContent = publicacion.contenido;
 
-    const eliminarBtn = document.createElement('button');
-    eliminarBtn.textContent = 'Eliminar';
-    eliminarBtn.addEventListener('click', () => eliminarPublicacion(index));
-
     publicacionDiv.appendChild(tituloElemento);
     publicacionDiv.appendChild(contenidoElemento);
-    publicacionDiv.appendChild(eliminarBtn);
 
     // Mostrar adjuntos si los hay
     if (publicacion.adjuntos && publicacion.adjuntos.length > 0) {
@@ -211,46 +203,54 @@ function agregarPublicacion(publicacion, index) {
         publicacionDiv.appendChild(adjuntosDiv);
     }
 
-    document.getElementById('lista-publicaciones').appendChild(publicacionDiv);
+    // Añadir el elemento de publicación al contenedor
+    contenedor.appendChild(publicacionDiv);
 }
 
-// Función para eliminar publicación
-function eliminarPublicacion(index) {
-    publicaciones.splice(index, 1);
-    localStorage.setItem('publicaciones', JSON.stringify(publicaciones));
-    cargarPublicaciones();
-}
-
-// Mostrar perfil del usuario
-function mostrarPerfil() {
-    document.getElementById('foro').style.display = 'none';
-    document.getElementById('perfil').style.display = 'block';
-    document.getElementById('usuario-nombre').textContent = usuarioActual;
-    cargarPublicacionesUsuario();
-}
-
-// Cargar publicaciones del usuario actual
-function cargarPublicacionesUsuario() {
-    const publicacionesUsuario = publicaciones.filter(p => p.usuario === usuarioActual);
-    document.getElementById('lista-publicaciones-usuario').innerHTML = '';
-    publicacionesUsuario.forEach((publicacion, index) => {
-        agregarPublicacion(publicacion, index);
-    });
-}
-
-// Buscar publicaciones por palabras clave
+// Buscar publicaciones por palabra clave
 document.getElementById('buscador-btn').addEventListener('click', function() {
     const query = document.getElementById('buscador-input').value.toLowerCase();
-    const publicacionesFiltradas = publicaciones.filter(p =>
-        p.titulo.toLowerCase().includes(query) || p.contenido.toLowerCase().includes(query)
+    const publicacionesFiltradas = publicaciones.filter(publicacion =>
+        publicacion.titulo.toLowerCase().includes(query) ||
+        publicacion.contenido.toLowerCase().includes(query)
     );
+
     document.getElementById('lista-publicaciones').innerHTML = '';
-    publicacionesFiltradas.forEach((publicacion, index) => {
-        agregarPublicacion(publicacion, index);
+    publicacionesFiltradas.forEach(publicacion => {
+        agregarPublicacion(publicacion);
     });
 });
 
-// Inicialización
-if (usuarioActual) {
-    mostrarForo();
+// Mostrar perfil de un usuario
+document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('ver-perfil')) {
+        event.preventDefault();
+        const usuario = event.target.dataset.usuario;
+        mostrarPerfil(usuario);
+    }
+});
+
+function mostrarPerfil(usuario) {
+    document.getElementById('foro').style.display = 'none';
+    document.getElementById('perfil').style.display = 'block';
+    document.getElementById('usuario-nombre').textContent = `Perfil de ${usuario}`;
+    
+    // Filtrar y mostrar las publicaciones del usuario
+    const publicacionesUsuario = publicaciones.filter(p => p.usuario === usuario);
+    mostrarPublicacionesUsuario(publicacionesUsuario);
 }
+
+function mostrarPublicacionesUsuario(publicacionesUsuario) {
+    const listaPublicacionesUsuario = document.getElementById('lista-publicaciones-usuario');
+    listaPublicacionesUsuario.innerHTML = '';
+
+    publicacionesUsuario.forEach(publicacion => {
+        agregarPublicacion(publicacion, listaPublicacionesUsuario);
+    });
+}
+
+// Volver al foro desde el perfil
+document.getElementById('volver-btn').addEventListener('click', function() {
+    document.getElementById('perfil').style.display = 'none';
+    document.getElementById('foro').style.display = 'block';
+});
