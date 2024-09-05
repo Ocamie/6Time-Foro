@@ -1,256 +1,165 @@
-// Variables globales
-let usuarios = JSON.parse(localStorage.getItem('usuarios')) || [];
-let publicaciones = JSON.parse(localStorage.getItem('publicaciones')) || [];
-let usuarioActual = localStorage.getItem('usuarioActual');
-
-// Mostrar y ocultar formularios
-document.getElementById('mostrar-registro').addEventListener('click', () => {
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('registro-form').style.display = 'block';
-});
-
-document.getElementById('mostrar-login').addEventListener('click', () => {
-    document.getElementById('registro-form').style.display = 'none';
-    document.getElementById('login-form').style.display = 'block';
-});
-
-// Función de Registro
-document.getElementById('registro-btn').addEventListener('click', function() {
-    const usuario = document.getElementById('registro-usuario').value;
-    const password = document.getElementById('registro-password').value;
-
-    if (usuario.trim() && password.trim()) {
-        const usuarioExistente = usuarios.find(u => u.usuario === usuario);
-        if (!usuarioExistente) {
-            usuarios.push({ usuario, password });
-            localStorage.setItem('usuarios', JSON.stringify(usuarios));
-            alert("Registro exitoso, ahora puedes iniciar sesión.");
-            document.getElementById('registro-form').style.display = 'none';
-            document.getElementById('login-form').style.display = 'block';
-        } else {
-            alert("El usuario ya existe.");
-        }
-    } else {
-        alert("Por favor, completa todos los campos.");
-    }
-});
-
-// Función de Login
-document.getElementById('login-btn').addEventListener('click', function() {
-    const usuario = document.getElementById('login-usuario').value;
-    const password = document.getElementById('login-password').value;
-
-    const usuarioEncontrado = usuarios.find(u => u.usuario === usuario && u.password === password);
-    if (usuarioEncontrado) {
-        localStorage.setItem('usuarioActual', usuario);
-        usuarioActual = usuario;
-        mostrarForo();
-    } else {
-        alert("Usuario o contraseña incorrectos.");
-    }
-});
-
-// Mostrar foro después del login
-function mostrarForo() {
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('registro-form').style.display = 'none';
-    document.getElementById('foro').style.display = 'block';
-    document.getElementById('usuario-bienvenida').textContent = `Bienvenido, ${usuarioActual}`;
-    cargarPublicaciones();
+/* Estilos generales */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 
-// Publicar un nuevo tema
-document.getElementById('publicar-btn').addEventListener('click', function() {
-    const titulo = document.getElementById('titulo').value;
-    const contenido = document.getElementById('contenido').value;
-
-    const archivos = document.getElementById('archivo').files; // Obtener archivos adjuntos
-
-    if (titulo.trim() && contenido.trim()) {
-        const nuevaPublicacion = {
-            usuario: usuarioActual,
-            titulo,
-            contenido,
-            adjuntos: [],
-            fecha: new Date().toLocaleString()
-        };
-
-        if (archivos.length > 0) {
-            let archivosProcesados = 0;
-            for (let i = 0; i < archivos.length; i++) {
-                const archivo = archivos[i];
-                const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    nuevaPublicacion.adjuntos.push({
-                        nombre: archivo.name,
-                        tipo: archivo.type,
-                        contenido: e.target.result
-                    });
-                    archivosProcesados++;
-                    if (archivosProcesados === archivos.length) {
-                        guardarPublicacion(nuevaPublicacion);
-                    }
-                };
-
-                reader.readAsDataURL(archivo); // Leer archivo como base64
-            }
-        } else {
-            guardarPublicacion(nuevaPublicacion);
-        }
-    } else {
-        alert("Por favor, rellena todos los campos.");
-    }
-});
-
-// Función para guardar y agregar la publicación
-function guardarPublicacion(publicacion) {
-    publicaciones.push(publicacion);
-    localStorage.setItem('publicaciones', JSON.stringify(publicaciones));
-    agregarPublicacion(publicacion);
-
-    // Limpiar campos
-    document.getElementById('titulo').value = '';
-    document.getElementById('contenido').value = '';
-    document.getElementById('archivo').value = '';
-    document.getElementById('adjuntos-preview').innerHTML = '';
+body {
+  background-color: #f0f0f0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 20px;
 }
 
-// Previsualización de archivos adjuntos
-document.getElementById('archivo').addEventListener('change', function() {
-    const archivos = document.getElementById('archivo').files;
-    const preview = document.getElementById('adjuntos-preview');
-    preview.innerHTML = '';
-
-    for (let i = 0; i < archivos.length; i++) {
-        const archivo = archivos[i];
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            const div = document.createElement('div');
-            if (archivo.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                div.appendChild(img);
-            } else if (archivo.type.startsWith('video/')) {
-                const video = document.createElement('video');
-                video.src = e.target.result;
-                video.controls = true;
-                div.appendChild(video);
-            } else {
-                const p = document.createElement('p');
-                p.textContent = archivo.name;
-                div.appendChild(p);
-            }
-            preview.appendChild(div);
-        };
-
-        reader.readAsDataURL(archivo);
-    }
-});
-
-// Cargar publicaciones al iniciar sesión
-function cargarPublicaciones() {
-    document.getElementById('lista-publicaciones').innerHTML = '';
-    publicaciones.forEach(publicacion => {
-        agregarPublicacion(publicacion);
-    });
+.container {
+  background-color: #fff;
+  padding: 20px;
+  width: 600px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
-// Función para agregar publicación al DOM
-function agregarPublicacion(publicacion, contenedor = document.getElementById('lista-publicaciones')) {
-    const publicacionDiv = document.createElement('div');
-    publicacionDiv.classList.add('publicacion');
-
-    const tituloElemento = document.createElement('h3');
-    tituloElemento.textContent = `${publicacion.titulo} (por <a href="#" class="ver-perfil" data-usuario="${publicacion.usuario}">${publicacion.usuario}</a> - ${publicacion.fecha})`;
-
-    const contenidoElemento = document.createElement('p');
-    contenidoElemento.textContent = publicacion.contenido;
-
-    publicacionDiv.appendChild(tituloElemento);
-    publicacionDiv.appendChild(contenidoElemento);
-
-    // Mostrar adjuntos si los hay
-    if (publicacion.adjuntos && publicacion.adjuntos.length > 0) {
-        const adjuntosDiv = document.createElement('div');
-        adjuntosDiv.classList.add('adjuntos');
-
-        publicacion.adjuntos.forEach(adjunto => {
-            const adjuntoDiv = document.createElement('div');
-            adjuntoDiv.classList.add('adjunto');
-
-            if (adjunto.tipo.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = adjunto.contenido;
-                adjuntoDiv.appendChild(img);
-            } else if (adjunto.tipo.startsWith('video/')) {
-                const video = document.createElement('video');
-                video.src = adjunto.contenido;
-                video.controls = true;
-                adjuntoDiv.appendChild(video);
-            } else {
-                const enlace = document.createElement('a');
-                enlace.href = adjunto.contenido;
-                enlace.download = adjunto.nombre;
-                enlace.textContent = adjunto.nombre;
-                adjuntoDiv.appendChild(enlace);
-            }
-
-            adjuntosDiv.appendChild(adjuntoDiv);
-        });
-
-        publicacionDiv.appendChild(adjuntosDiv);
-    }
-
-    // Añadir el elemento de publicación al contenedor
-    contenedor.appendChild(publicacionDiv);
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-// Buscar publicaciones por palabra clave
-document.getElementById('buscador-btn').addEventListener('click', function() {
-    const query = document.getElementById('buscador-input').value.toLowerCase();
-    const publicacionesFiltradas = publicaciones.filter(publicacion =>
-        publicacion.titulo.toLowerCase().includes(query) ||
-        publicacion.contenido.toLowerCase().includes(query)
-    );
-
-    document.getElementById('lista-publicaciones').innerHTML = '';
-    publicacionesFiltradas.forEach(publicacion => {
-        agregarPublicacion(publicacion);
-    });
-});
-
-// Mostrar perfil de un usuario
-document.addEventListener('click', function(event) {
-    if (event.target.classList.contains('ver-perfil')) {
-        event.preventDefault();
-        const usuario = event.target.dataset.usuario;
-        mostrarPerfil(usuario);
-    }
-});
-
-function mostrarPerfil(usuario) {
-    document.getElementById('foro').style.display = 'none';
-    document.getElementById('perfil').style.display = 'block';
-    document.getElementById('usuario-nombre').textContent = `Perfil de ${usuario}`;
-    
-    // Filtrar y mostrar las publicaciones del usuario
-    const publicacionesUsuario = publicaciones.filter(p => p.usuario === usuario);
-    mostrarPublicacionesUsuario(publicacionesUsuario);
+/* Formularios */
+#formulario-publicacion input,
+#formulario-publicacion textarea,
+#login-form input,
+#registro-form input,
+#buscador input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-function mostrarPublicacionesUsuario(publicacionesUsuario) {
-    const listaPublicacionesUsuario = document.getElementById('lista-publicaciones-usuario');
-    listaPublicacionesUsuario.innerHTML = '';
-
-    publicacionesUsuario.forEach(publicacion => {
-        agregarPublicacion(publicacion, listaPublicacionesUsuario);
-    });
+#publicar-btn,
+#login-btn,
+#registro-btn,
+#buscador-btn,
+#volver-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-// Volver al foro desde el perfil
-document.getElementById('volver-btn').addEventListener('click', function() {
-    document.getElementById('perfil').style.display = 'none';
-    document.getElementById('foro').style.display = 'block';
-});
+#publicar-btn:hover,
+#login-btn:hover,
+#registro-btn:hover,
+#buscador-btn:hover,
+#volver-btn:hover {
+  background-color: #0056b3;
+}
+
+#publicaciones {
+  margin-top: 30px;
+}
+
+.publicacion {
+  background-color: #e9ecef;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.publicacion h3 {
+  margin-bottom: 10px;
+}
+
+.publicacion p {
+  margin-bottom: 5px;
+  color: #555;
+}
+
+span {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+#login-form,
+#registro-form {
+  margin-bottom: 20px;
+}
+
+#adjuntos-preview {
+  margin: 10px 0;
+}
+
+#adjuntos-preview img {
+  max-width: 100px;
+  margin-right: 10px;
+}
+
+#adjuntos-preview video {
+  max-width: 200px;
+  margin-right: 10px;
+}
+
+#adjuntos-preview div {
+  display: inline-block;
+  margin-right: 10px;
+  background-color: #f1f1f1;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.adjuntos {
+  margin-top: 10px;
+}
+
+.adjunto {
+  margin-bottom: 5px;
+}
+
+.adjunto img,
+.adjunto video {
+  max-width: 100%;
+}
+
+.adjunto a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.adjunto a:hover {
+  text-decoration: underline;
+}
+
+/* Nuevos estilos */
+#buscador {
+  margin-bottom: 20px;
+}
+
+#perfil {
+  display: flex;
+  flex-direction: column;
+}
+
+#perfil button {
+  margin-bottom: 20px;
+}
+
+#publicaciones-usuario {
+  margin-top: 30px;
+}
+
+.ver-perfil {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.ver-perfil:hover {
+  text-decoration: underline;
+}
