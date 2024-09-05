@@ -29,10 +29,6 @@
         <!-- Área de publicación visible después del login -->
         <div id="foro" style="display: none;">
             <p id="usuario-bienvenida"></p>
-            <div id="buscador">
-                <input type="text" id="buscador-input" placeholder="Buscar publicaciones...">
-                <button id="buscador-btn">Buscar</button>
-            </div>
             <div id="formulario-publicacion">
                 <input type="text" id="titulo" placeholder="Título del tema" required>
                 <textarea id="contenido" placeholder="Escribe el contenido aquí..." required></textarea>
@@ -44,20 +40,25 @@
                 <button id="publicar-btn">Publicar</button>
             </div>
 
+            <div id="buscador">
+                <input type="text" id="buscador-input" placeholder="Buscar publicaciones...">
+                <button id="buscador-btn">Buscar</button>
+            </div>
+
             <div id="publicaciones">
                 <h2>Publicaciones</h2>
                 <div id="lista-publicaciones"></div>
             </div>
         </div>
 
-        <!-- Perfil del Usuario -->
+        <!-- Perfil de usuario -->
         <div id="perfil" style="display: none;">
-            <p id="usuario-nombre"></p>
+            <button id="volver-btn">Volver al Foro</button>
+            <h2 id="usuario-nombre"></h2>
             <div id="publicaciones-usuario">
-                <h2>Mis Publicaciones</h2>
+                <h3>Publicaciones de <span id="nombre-usuario"></span></h3>
                 <div id="lista-publicaciones-usuario"></div>
             </div>
-            <button id="volver-btn">Volver al Foro</button>
         </div>
     </div>
 
